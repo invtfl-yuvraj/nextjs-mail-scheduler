@@ -1,9 +1,11 @@
 import React, { useState } from "react";
+import ProfileSwitcher from "./ProfileSwitcher";
 
 const ScheduleInput = () => {
 
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showNewProfileForm, setShowNewProfileForm] = useState(false);
+  const [newProfile, setNewProfile] = useState({ name: '', email: '' });
 
   const [currentProfile, setCurrentProfile] = useState({
     id: 1,
@@ -60,7 +62,17 @@ const ScheduleInput = () => {
             >
               Switch
             </button>
-            {showProfileMenu && <ProfileSwitcher />}
+            {showProfileMenu && <ProfileSwitcher 
+            setCurrentProfile = {setCurrentProfile} 
+            setShowProfileMenu = {setShowProfileMenu}
+            showNewProfileForm = {showNewProfileForm}
+            profiles = {profiles}
+            currentProfile = {currentProfile} 
+            setShowNewProfileForm = {setShowNewProfileForm}
+            newProfile = {newProfile}
+            setNewProfile = {setNewProfile}
+            setProfiles = {setProfiles}
+            />}
           </div>
         </div>
       </div>

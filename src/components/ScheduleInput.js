@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import ProfileSwitcher from "./ProfileSwitcher";
 import RecipientListDropdown from "./RecipientListDropdown";
+import DatePicker from "./DatePicker";
+import TimePicker from "./TimePicker";
 import { Calendar, Clock, Plus, X} from 'lucide-react';
 
 const ScheduleInput = () => {
@@ -209,7 +211,11 @@ const ScheduleInput = () => {
               <span className="flex-1">{formatDate(selectedDate)}</span>
               <Calendar className="w-5 h-5 text-gray-400" />
             </button>
-            {/* {showDatePicker && <DatePicker />} */}
+            {showDatePicker && <DatePicker 
+            setShowDatePicker = {setShowDatePicker} 
+            setSelectedDate = {setSelectedDate} 
+            formatDate = {formatDate}
+            selectedDate = {selectedDate} />}
           </div>
           
           <div className="relative">
@@ -220,7 +226,11 @@ const ScheduleInput = () => {
               <span className="flex-1">{formatTime(selectedTime)}</span>
               <Clock className="w-5 h-5 text-gray-400" />
             </button>
-            {/* {showTimePicker && <TimePicker />} */}
+            {showTimePicker && <TimePicker 
+            setSelectedTime = {setSelectedTime}
+            selectedTime = {selectedTime}
+            setShowTimePicker = {setShowTimePicker}
+             />}
           </div>
         </div>
       </div>

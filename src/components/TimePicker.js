@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from "react";
 
 const TimePicker = ({ setSelectedTime, selectedTime, setShowTimePicker, selectedDate }) => {
-  const [time, setTime] = useState(selectedTime);
+  const [time, setTime] = useState(() => {
+    return selectedTime && typeof selectedTime === "object"
+      ? { ...selectedTime }
+      : { hours: 12, minutes: 0, period: "AM" };
+  });
+
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -16,48 +21,50 @@ const TimePicker = ({ setSelectedTime, selectedTime, setShowTimePicker, selected
   };
 
   const handleConfirm = () => {
+    if (!time) {
+      setError("Invalid time selection.");
+      return;
+    }
+
+    const { hours = 12, minutes = 0, period = "AM" } = time;
     const now = new Date();
-    const date = selectedDate ? new Date(selectedDate) : now; // Ensure selectedDate is a valid Date object
+    const date = selectedDate ? new Date(selectedDate) : now;
     const isToday = date.toDateString() === now.toDateString();
-  
-    const selectedHours = time.period === "PM" ? (time.hours % 12) + 12 : time.hours % 12;
-    const selectedMinutes = time.minutes;
-  
+
+    const selectedHours = period === "PM" ? (hours % 12) + 12 : hours % 12;
+    const selectedMinutes = minutes;
+
     if (isToday) {
       const currentHours = now.getHours();
       const currentMinutes = now.getMinutes();
-  
-      if (
-        selectedHours < currentHours ||
-        (selectedHours === currentHours && selectedMinutes <= currentMinutes)
-      ) {
+
+      if (selectedHours < currentHours || (selectedHours === currentHours && selectedMinutes <= currentMinutes)) {
         setError("Selected time is in the past. Adjusting to the next available time.");
-        
+
         let newHours = currentHours;
-        let newMinutes = Math.ceil((currentMinutes + 1) / 15) * 15; // Round up to the next 15-minute slot
-  
+        let newMinutes = Math.ceil((currentMinutes + 1) / 15) * 15;
+
         if (newMinutes >= 60) {
           newMinutes = 0;
           newHours++;
         }
-  
+
         const newPeriod = newHours >= 12 ? "PM" : "AM";
         newHours = newHours > 12 ? newHours - 12 : newHours === 0 ? 12 : newHours;
-  
+
         setTime({
           hours: newHours,
           minutes: newMinutes,
           period: newPeriod,
         });
-  
+
         return;
       }
     }
-  
+
     setSelectedTime(time);
     setShowTimePicker(false);
   };
-  
 
   return (
     <div className="absolute left-0 mt-2 bg-white p-4 shadow-lg rounded-lg z-10">
@@ -65,7 +72,7 @@ const TimePicker = ({ setSelectedTime, selectedTime, setShowTimePicker, selected
       {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
       <div className="flex justify-between items-center gap-2 mb-4">
         <select
-          value={time.hours}
+          value={time?.hours || 12}
           onChange={(e) => handleTimeChange("hours", parseInt(e.target.value))}
           className="px-3 py-2 border rounded-md"
         >
@@ -77,10 +84,8 @@ const TimePicker = ({ setSelectedTime, selectedTime, setShowTimePicker, selected
         </select>
         <span>:</span>
         <select
-          value={time.minutes}
-          onChange={(e) =>
-            handleTimeChange("minutes", parseInt(e.target.value))
-          }
+          value={time?.minutes || 0}
+          onChange={(e) => handleTimeChange("minutes", parseInt(e.target.value))}
           className="px-3 py-2 border rounded-md"
         >
           {[0, 15, 30, 45].map((minute) => (
@@ -90,7 +95,7 @@ const TimePicker = ({ setSelectedTime, selectedTime, setShowTimePicker, selected
           ))}
         </select>
         <select
-          value={time.period}
+          value={time?.period || "AM"}
           onChange={(e) => handleTimeChange("period", e.target.value)}
           className="px-3 py-2 border rounded-md"
         >
@@ -114,6 +119,11 @@ const TimePicker = ({ setSelectedTime, selectedTime, setShowTimePicker, selected
       </div>
     </div>
   );
+};
+
+// ✅ Add default props to prevent undefined errors
+TimePicker.defaultProps = {
+  selectedTime: { hours: 12, minutes: 0, period: "AM" },
 };
 
 export default TimePicker;

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import ProfileSwitcher from "./ProfileSwitcher";
+import RecipientListDropdown from "./RecipientListDropdown";
 import { Plus, X} from 'lucide-react';
 
 const ScheduleInput = () => {
@@ -72,6 +73,7 @@ const ScheduleInput = () => {
 
   // Recepients section 
 
+  const [selectedList, setSelectedList] = useState('active');
   const [showAllRecipients, setShowAllRecipients] = useState(false);
   const [showListDropdown, setShowListDropdown] = useState(false);
   const displayedRecipients = showAllRecipients ? recipients : recipients.slice(0, 15);
@@ -122,7 +124,13 @@ const ScheduleInput = () => {
 
       <div className="mb-8">
         <h2 className="text-lg text-gray-500 mb-4">Recipient List</h2>
-        <RecipientListDropdown />
+        <RecipientListDropdown 
+        showListDropdown = {showListDropdown}
+        setShowListDropdown = {setShowListDropdown}
+        recipientLists = {recipientLists}
+        selectedList = {selectedList}
+        setSelectedList = {setSelectedList}
+        />
         
         <div className="flex flex-wrap gap-2 max-h-40 justify-between p-4 overflow-scroll scroll-smooth no-scrollbar bg-blue-50 rounded-md">
           {displayedRecipients.map((recipient) => (

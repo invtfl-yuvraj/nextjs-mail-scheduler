@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import ProfileSwitcher from "./ProfileSwitcher";
+import { Plus, X} from 'lucide-react';
 
 const ScheduleInput = () => {
 
@@ -55,8 +56,26 @@ const ScheduleInput = () => {
     { id: 7, name: 'David', image: '/api/placeholder/48/48' },
     { id: 8, name: 'John', image: '/api/placeholder/48/48' },
     { id: 9, name: 'Daniel', image: '/api/placeholder/48/48' },
+    { id: 10, name: 'Daniel', image: '/api/placeholder/48/48' },
+    { id: 11, name: 'Daniel', image: '/api/placeholder/48/48' },
+    { id: 12, name: 'Daniel', image: '/api/placeholder/48/48' },
+    { id: 13, name: 'Daniel', image: '/api/placeholder/48/48' },
+    { id: 14, name: 'Daniel', image: '/api/placeholder/48/48' },
+    { id: 15, name: 'Daniel', image: '/api/placeholder/48/48' },
+    { id: 16, name: 'Daniel', image: '/api/placeholder/48/48' },
+    { id: 17, name: 'Daniel', image: '/api/placeholder/48/48' },
+    { id: 18, name: 'Daniel', image: '/api/placeholder/48/48' },
+    { id: 19, name: 'Daniel', image: '/api/placeholder/48/48' },
+    { id: 20, name: 'Daniel', image: '/api/placeholder/48/48' },
+
   ];
 
+  // Recepients section 
+
+  const [showAllRecipients, setShowAllRecipients] = useState(false);
+  const [showListDropdown, setShowListDropdown] = useState(false);
+  const displayedRecipients = showAllRecipients ? recipients : recipients.slice(0, 15);
+  const remainingCount = recipients.length - 15;
 
   return (
     <div className="max-w-xl mx-auto p-6 bg-white rounded-lg shadow">
@@ -94,6 +113,47 @@ const ScheduleInput = () => {
             setProfiles = {setProfiles}
             />}
           </div>
+        </div>
+      </div>
+
+
+      {/* Recipient List Selection */}
+
+
+      <div className="mb-8">
+        <h2 className="text-lg text-gray-500 mb-4">Recipient List</h2>
+        <RecipientListDropdown />
+        
+        <div className="flex flex-wrap gap-2 max-h-40 justify-between p-4 overflow-scroll scroll-smooth no-scrollbar bg-blue-50 rounded-md">
+          {displayedRecipients.map((recipient) => (
+            <div
+              key={recipient.id}
+              className="relative group flex flex-col items-center"
+            >
+              <button className="absolute -top-1 -right-1 w-5 h-5 bg-white rounded-full shadow flex items-center justify-center opacity-0 group-hover:opacity-100">
+                <X className="w-3 h-3" />
+              </button>
+              <img
+                src={recipient.image}
+                alt={recipient.name}
+                className="w-12 h-12 rounded-full bg-purple-100"
+              />
+              <span className="text-sm mt-1">{recipient.name}</span>
+            </div>
+          ))}
+          
+          {!showAllRecipients && remainingCount > 0 && (
+            <button
+              onClick={() => setShowAllRecipients(true)}
+              className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 hover:bg-gray-200"
+            >
+              +{remainingCount}
+            </button>
+          )}
+          
+          <button className="w-12 h-12 rounded-full border-2 border-dashed border-blue-500 flex items-center justify-center text-blue-500">
+            <Plus className="w-6 h-6" />
+          </button>
         </div>
       </div>
     </div>

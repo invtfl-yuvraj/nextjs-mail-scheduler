@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import ProfileSwitcher from "./ProfileSwitcher";
 import RecipientListDropdown from "./RecipientListDropdown";
-import { Plus, X} from 'lucide-react';
+import { Calendar, Clock, Plus, X} from 'lucide-react';
 
 const ScheduleInput = () => {
 
@@ -78,6 +78,35 @@ const ScheduleInput = () => {
   const [showListDropdown, setShowListDropdown] = useState(false);
   const displayedRecipients = showAllRecipients ? recipients : recipients.slice(0, 15);
   const remainingCount = recipients.length - 15;
+
+  // Schedule Section 
+
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showTimePicker, setShowTimePicker] = useState(false);
+  
+  // Schedule states
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [selectedTime, setSelectedTime] = useState({ hours: 12, minutes: 0, period: 'AM' });
+  const [isScheduled, setIsScheduled] = useState(false);
+
+  const formatDate = (date) => {
+    if (date.toDateString() === new Date().toDateString()) return 'Today';
+    if (date.toDateString() === new Date(Date.now() + 86400000).toDateString()) return 'Tomorrow';
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  };
+
+  const formatTime = (time) => {
+    return `${time.hours}:${time.minutes.toString().padStart(2, '0')} ${time.period}`;
+  };
+
+  const handleSchedule = () => {
+    setIsScheduled(true);
+    // Here typically make an API call to schedule the mail
+    const scheduleTime = new Date(selectedDate);
+    const hours = selectedTime.hours + (selectedTime.period === 'PM' ? 12 : 0);
+    scheduleTime.setHours(hours, selectedTime.minutes);
+    console.log('Scheduling mail for:', scheduleTime);
+  };
 
   return (
     <div className="max-w-xl mx-auto p-6 bg-white rounded-lg shadow">
@@ -164,6 +193,45 @@ const ScheduleInput = () => {
           </button>
         </div>
       </div>
+
+      {/* Schedule Section */}
+      <div className="mb-8">
+
+        <hr />
+        
+        <h3 className="text-lg mb-4">Choose Date & Time to Publish</h3>
+        <div className="space-y-3">
+          <div className="relative">
+            <button
+              onClick={() => setShowDatePicker(!showDatePicker)}
+              className="w-full flex items-center border rounded-lg p-4 hover:bg-gray-50"
+            >
+              <span className="flex-1">{formatDate(selectedDate)}</span>
+              <Calendar className="w-5 h-5 text-gray-400" />
+            </button>
+            {/* {showDatePicker && <DatePicker />} */}
+          </div>
+          
+          <div className="relative">
+            <button
+              onClick={() => setShowTimePicker(!showTimePicker)}
+              className="w-full flex items-center border rounded-lg p-4 hover:bg-gray-50"
+            >
+              <span className="flex-1">{formatTime(selectedTime)}</span>
+              <Clock className="w-5 h-5 text-gray-400" />
+            </button>
+            {/* {showTimePicker && <TimePicker />} */}
+          </div>
+        </div>
+      </div>
+
+      {/* Send Button */}
+      <button
+        onClick={handleSchedule}
+        className="w-full py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+      >
+        {isScheduled ? 'Scheduled' : 'Schedule Mail'}
+      </button>
     </div>
   );
 };

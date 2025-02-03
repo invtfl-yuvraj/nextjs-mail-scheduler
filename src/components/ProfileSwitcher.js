@@ -1,5 +1,6 @@
-import React from "react";
-import { Check, UserPlus } from "lucide-react";
+import {useRef, React }  from "react";
+import { Check, UserPlus,} from "lucide-react";
+import useOutsideClick from "@/custom-hooks/useOutsideClick";
 
 
 const ProfileSwitcher = ({
@@ -13,6 +14,9 @@ const ProfileSwitcher = ({
   setNewProfile,
   setProfiles
 }) => {
+
+    const dropdownRef = useRef(null);
+    useOutsideClick(dropdownRef, () => setShowProfileMenu(false));
 
 
   const handleCreateProfile = (e) => {
@@ -32,7 +36,7 @@ const ProfileSwitcher = ({
   };
 
   return (
-    <div className="absolute top-full right-0 mt-1 w-72 bg-white border rounded-lg shadow-lg z-20">
+    <div ref={dropdownRef} className="absolute top-full right-0 mt-1 w-72 bg-white border rounded-lg shadow-lg z-20">
       {!showNewProfileForm ? (
         <div className="p-2">
           <div className="space-y-1">
@@ -55,7 +59,7 @@ const ProfileSwitcher = ({
                   <div className="text-sm text-gray-500">{profile.email}</div>
                 </div>
                 {currentProfile.id === profile.id && (
-                  <Check className="w-4 h-4 text-blue-600" />
+                  <Check className="w-4 h-4 text-purple-600" />
                 )}
               </button>
             ))}
@@ -64,7 +68,7 @@ const ProfileSwitcher = ({
           <div className="border-t mt-2 pt-2">
             <button
               onClick={() => setShowNewProfileForm(true)}
-              className="w-full flex items-center gap-2 p-2 text-blue-600 hover:bg-blue-50 rounded-md"
+              className="w-full flex items-center gap-2 p-2 text-purple-800 hover:bg-purple-50 rounded-md"
             >
               <UserPlus className="w-4 h-4" />
               <span>Create New Profile</span>
@@ -115,7 +119,7 @@ const ProfileSwitcher = ({
               </button>
               <button
                 type="submit"
-                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-800"
               >
                 Create
               </button>

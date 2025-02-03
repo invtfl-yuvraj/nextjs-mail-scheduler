@@ -1,12 +1,15 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import useOutsideClick from "@/custom-hooks/useOutsideClick";
 
 const DatePicker = ({ setShowDatePicker, setSelectedDate, selectedDate }) => {
   const [currentDate, setCurrentDate] = useState(selectedDate);
   const [calendarDays, setCalendarDays] = useState([]);
   const today = new Date();
-  today.setHours(0, 0, 0, 0); // Reset time part for accurate date comparison
+  today.setHours(0, 0, 0, 0);
 
-  // Generate the calendar days for the current month
+  const dropdownRef = useRef(null);
+  useOutsideClick(dropdownRef, () => setShowDatePicker(false));
+
   useEffect(() => {
     const generateCalendarDays = () => {
       const daysInMonth = new Date(
@@ -63,8 +66,10 @@ const DatePicker = ({ setShowDatePicker, setSelectedDate, selectedDate }) => {
   const handlePreviousMonth = () => {
     const newDate = new Date(currentDate);
     newDate.setMonth(newDate.getMonth() - 1);
-    // Only allow going to current month or future months
-    if (newDate.getMonth() >= today.getMonth() || newDate.getFullYear() > today.getFullYear()) {
+    if (
+      newDate.getMonth() >= today.getMonth() ||
+      newDate.getFullYear() > today.getFullYear()
+    ) {
       setCurrentDate(newDate);
     }
   };
@@ -80,21 +85,25 @@ const DatePicker = ({ setShowDatePicker, setSelectedDate, selectedDate }) => {
 
   const getButtonStyles = (day) => {
     if (!day) return "text-transparent cursor-default";
-    
+
     const isDisabled = isDateDisabled(day);
     const isSelected = day === currentDate.getDate() && !isDisabled;
-    
+
+    // Custom transition colors and logic for button styles
     if (isDisabled) {
-      return "text-gray-300 cursor-not-allowed bg-gray-50";
+      return "text-gray-300 cursor-not-allowed bg-gray-50 transition-colors duration-200";
     }
     if (isSelected) {
-      return "bg-blue-600 text-white hover:bg-blue-700";
+      return "bg-purple-600 text-white hover:bg-purple-800 transition-colors duration-200";
     }
-    return "text-gray-700 hover:bg-blue-100";
+    return "text-gray-700 hover:bg-purple-200 transition-colors duration-200";
   };
 
   return (
-    <div className="absolute left-0 mt-2 bg-white p-4 shadow-lg rounded-lg z-10">
+    <div
+      ref={dropdownRef}
+      className="absolute bottom-10 right-0 mt-2 bg-zinc-100 p-4 shadow-lg rounded-lg z-10"
+    >
       <h4 className="text-lg font-medium mb-2">Pick a Date</h4>
       {/* Header for month navigation */}
       <div className="flex justify-between items-center mb-4">
@@ -117,7 +126,7 @@ const DatePicker = ({ setShowDatePicker, setSelectedDate, selectedDate }) => {
         </span>
         <button
           onClick={handleNextMonth}
-          className="px-3 py-1 bg-gray-200 rounded-md hover:bg-gray-300"
+          className="px-3 py-1 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors duration-200"
         >
           ▶️
         </button>
@@ -134,7 +143,7 @@ const DatePicker = ({ setShowDatePicker, setSelectedDate, selectedDate }) => {
             key={index}
             onClick={() => handleDateChange(day)}
             disabled={isDateDisabled(day)}
-            className={`w-10 h-10 rounded-full flex items-center justify-center text-sm transition-colors ${getButtonStyles(
+            className={`w-10 h-10 rounded-full flex items-center justify-center text-sm transition-colors duration-200 ${getButtonStyles(
               day
             )}`}
           >
@@ -146,13 +155,13 @@ const DatePicker = ({ setShowDatePicker, setSelectedDate, selectedDate }) => {
       <div className="flex justify-end gap-2">
         <button
           onClick={() => setShowDatePicker(false)}
-          className="px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors"
+          className="px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors duration-200"
         >
           Cancel
         </button>
         <button
           onClick={handleConfirm}
-          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+          className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-800 transition-colors duration-200"
         >
           Confirm
         </button>

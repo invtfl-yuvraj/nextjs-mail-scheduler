@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import useOutsideClick from "@/custom-hooks/useOutsideClick";
 
 const TimePicker = ({ setSelectedTime, selectedTime, setShowTimePicker, selectedDate }) => {
   const [time, setTime] = useState(() => {
@@ -6,6 +7,9 @@ const TimePicker = ({ setSelectedTime, selectedTime, setShowTimePicker, selected
       ? { ...selectedTime }
       : { hours: 12, minutes: 0, period: "AM" };
   });
+
+  const dropdownRef = useRef(null);
+  useOutsideClick(dropdownRef, () => setShowTimePicker(false));
 
   const [error, setError] = useState("");
 
@@ -67,7 +71,7 @@ const TimePicker = ({ setSelectedTime, selectedTime, setShowTimePicker, selected
   };
 
   return (
-    <div className="absolute left-0 mt-2 bg-white p-4 shadow-lg rounded-lg z-10">
+    <div ref={dropdownRef} className="absolute bottom-16 right-0 mt-2 bg-zinc-100 p-4 shadow-lg rounded-lg z-10">
       <h4 className="text-lg font-medium mb-2">Pick a Time</h4>
       {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
       <div className="flex justify-between items-center gap-2 mb-4">

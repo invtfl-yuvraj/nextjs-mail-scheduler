@@ -24,6 +24,17 @@ const TimePicker = ({ setSelectedTime, selectedTime, setShowTimePicker, selected
     }));
   };
 
+  const isSelectedDateToday = () => {
+    if (!selectedDate) return false;
+    const today = new Date();
+    const selected = new Date(selectedDate);
+    return (
+      selected.getDate() === today.getDate() &&
+      selected.getMonth() === today.getMonth() &&
+      selected.getFullYear() === today.getFullYear()
+    );
+  };
+
   const handleConfirm = () => {
     if (!time) {
       setError("Invalid time selection.");
@@ -31,14 +42,12 @@ const TimePicker = ({ setSelectedTime, selectedTime, setShowTimePicker, selected
     }
 
     const { hours = 12, minutes = 0, period = "AM" } = time;
-    const now = new Date();
-    const date = selectedDate ? new Date(selectedDate) : now;
-    const isToday = date.toDateString() === now.toDateString();
-
     const selectedHours = period === "PM" ? (hours % 12) + 12 : hours % 12;
     const selectedMinutes = minutes;
 
-    if (isToday) {
+    // Only validate time if the selected date is today
+    if (isSelectedDateToday()) {
+      const now = new Date();
       const currentHours = now.getHours();
       const currentMinutes = now.getMinutes();
 
@@ -65,7 +74,8 @@ const TimePicker = ({ setSelectedTime, selectedTime, setShowTimePicker, selected
         return;
       }
     }
-
+    
+    // For non-today dates or valid times, set the time without further validation
     setSelectedTime(time);
     setShowTimePicker(false);
   };
@@ -125,7 +135,6 @@ const TimePicker = ({ setSelectedTime, selectedTime, setShowTimePicker, selected
   );
 };
 
-// ✅ Add default props to prevent undefined errors
 TimePicker.defaultProps = {
   selectedTime: { hours: 12, minutes: 0, period: "AM" },
 };

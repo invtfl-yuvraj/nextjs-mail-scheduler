@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+
 import {
   Pencil,
   Save,
@@ -21,34 +22,26 @@ const MailTemplateEditor = () => {
   const [error, setError] = useState(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  // Mock templates data - would come from API
-  const [templates] = useState([
-    {
-      id: 1,
-      name: "Free Trial Offer",
-      preview:
-        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQQLFLced9wpwuT5tl_ZdH8uDqPnrRXynHQjQ&s",
-      subject: "Get special offer only for you!",
-      body: "We have an exclusive special offer just for you! Enjoy a trial with us for a limited time 👀",
-      socialLinks: {
-        instagram: true,
-        facebook: true,
-        website: true,
-      },
-    },
-    {
-      id: 2,
-      name: "Welcome Email",
-      preview: "/api/placeholder/600/400",
-      subject: "Welcome to our community!",
-      body: "We're excited to have you join our community. Let's get started with your journey!",
-      socialLinks: {
-        instagram: true,
-        facebook: true,
-        website: true,
-      },
-    },
-  ]);
+  const [templates, setTemplates] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchTemplates = async () => {
+      try {
+        setLoading(true);
+        const res = await fetch("/api/templates");
+        const data = await res.json();
+        setTemplates(data);
+      } catch (err) {
+        setError("Failed to load templates");
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTemplates();
+  }, []);
 
   // Validate input lengths
   const validateInput = () => {
@@ -73,11 +66,37 @@ const MailTemplateEditor = () => {
     setIsDropdownOpen(false);
   };
 
-  const handleSaveChanges = () => {
+  const handleSaveChanges = async () => {
     if (!validateInput()) return;
-    setIsEditing(false);
-    // Here we typically make an API call to save the changes
-    console.log("Saving template changes:", { subject, body });
+
+    try {
+      const updatedData = {
+        subject,
+        body,
+      };
+
+      const res = await fetch(`/api/templates/${selectedTemplate.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedData),
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to save changes");
+      }
+
+      const updatedTemplate = await res.json(); // Get the updated template
+
+      console.log("Updated template:", updatedTemplate);
+
+
+      setSelectedTemplate(updatedTemplate.updatedTemplate); 
+
+      setIsEditing(false); // Stop editing mode
+    } catch (err) {
+      setError("Failed to save changes");
+      console.error(err);
+    }
   };
 
   const getSubjectLengthColor = () => {
@@ -97,9 +116,9 @@ const MailTemplateEditor = () => {
   return (
     <div className="max-w-xl w-1/2 h-[95vh] mx-auto flex flex-col justify-between bg-white rounded-lg shadow">
       {/* Template Header */}
-      <div className="p-6 border-b">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl text-gray-700 inline-block p-2">
+      <div className="p-6 border-b bg-gray-100">
+        <div className="flex items-center justify-between  mb-4">
+          <h2 className="text-xl font-bold text-gray-500 inline-block p-2">
             Mail Template
           </h2>
           {selectedTemplate && (
@@ -107,7 +126,7 @@ const MailTemplateEditor = () => {
               onClick={() =>
                 isEditing ? handleSaveChanges() : setIsEditing(true)
               }
-              className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:bg-gray-50 rounded-md transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-yellow-400 text-black  hover:bg-yellow-500 rounded-md transition-colors"
             >
               {isEditing ? (
                 <>
@@ -163,7 +182,7 @@ const MailTemplateEditor = () => {
 
       {!selectedTemplate && (
         <div className="w-full h-full flex flex-col items-center justify-center ">
-          <div className="p-4 bg-blue-200 rounded-lg">
+          <div className="p-4 bg-purple-200 rounded-lg">
             <h2 className="text-xl font-bold">No Template Selected</h2>
             <p className="">You can select desired mail template above</p>
           </div>
@@ -188,7 +207,7 @@ const MailTemplateEditor = () => {
                   alt="Logo"
                   className="w-8 h-8 rounded-full"
                 />
-                <span className="font-medium">etsymil</span>
+                <span className="font-medium">My Company</span>
               </div>
               <div className="flex gap-2">
                 <button className="p-2 text-gray-500 hover:bg-gray-100 rounded transition-colors">
@@ -211,13 +230,13 @@ const MailTemplateEditor = () => {
                 {body || "Email body content will appear here"}
               </p>
               <button className="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-colors">
-                Take My Free Trial 3 Days ✈️
+                {selectedTemplate.btnText}
               </button>
             </div>
 
             <div className="relative">
               <img
-                src="https://img.pikbest.com/backgrounds/20201007/special-offer-sale-fire-burn-template-discount-banner-promotion-concept-design-v_3122874jpg!w700wp"
+                src={selectedTemplate.promo}
                 alt="Promotion"
                 className="w-full h-full object-cover rounded"
               />
@@ -276,7 +295,7 @@ const MailTemplateEditor = () => {
           <button
             onClick={handleSaveChanges}
             disabled={!isEditing}
-            className="w-full py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+            className="w-full py-4 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
           >
             Save Changes
           </button>
